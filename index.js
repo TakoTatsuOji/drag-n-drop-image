@@ -12,11 +12,11 @@ function preventDefaults(e) {
     e.stopPropagation()
 }
 
-;['dragenter', 'dragover'].forEach(dragEvent => {
+;[dragEvents[0], dragEvents[1]].forEach(dragEvent => {
     dropArea.addEventListener(dragEvent, highlight)
 })
 
-;['dragleave', 'drop'].forEach(dragEvent => {
+;[dragEvents[2], dragEvents[3]].forEach(dragEvent => {
     dropArea.addEventListener(dragEvent, unhighlight)
 })
 
@@ -30,9 +30,34 @@ function unhighlight(evt) {
     dropArea.classList.remove('highlight')
 
     if (evt.type == 'drop') {
-        h1.style.display = none
+        h1.style.display = 'none'
         return
     }
     
     h1.style.display = 'block'
+}
+
+dropArea.addEventListener(dragEvents[3], handleDrop)
+
+function handleDrop(evt) {
+    const dataTransfer = evt.dataTransfer
+    const imgFileName = dataTransfer.files[0].name 
+    const allowedExtensions = /(\.jpg|\.jpeg|\.png|\.gif)$/i
+    
+    if (!allowedExtensions.exec(imgFileName)) {
+        alert("Invalid image file type")
+        return
+    }
+
+    const imgFile = dataTransfer.files[0]
+    previewImg(imgFile)    
+}
+
+function previewImg(imgFile) {
+    const reader = new FileReader()
+    reader.readAsDataURL(imgFile)
+
+    reader.onloadend = function() {
+        dropArea.style.backgroundImage = `url(${reader.result})`
+    }
 }
